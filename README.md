@@ -1,4 +1,4 @@
-# Project Setup
+## Project Setup
 
 This project requires the following tools to run correctly:
 
