@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+      DB_ASYNC_CONNECTION_STR: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
 
     services:
       postgres:
