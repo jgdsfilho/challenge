@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "billing-ingestor"
+version = "0.1.0"
+description = ""
+authors = ["Genilson Filho <genilson974@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.6"
+uvicorn = "^0.34.0"
+sqlalchemy = "^2.0.37"
+pydantic = "^2.10.5"
+psycopg2-binary = "^2.9.10"
+sqlmodel = "^0.0.22"
+alembic = "^1.14.0"
+asyncpg = "^0.30.0"
+greenlet = "^3.1.1"
+pydantic-settings = "^2.7.1"
+pytest = "^8.3.4"
+pytest-asyncio = "^0.25.2"
+
+[tool.poetry.dev-dependencies]
+ruff = "^0.9.1"
+httpx = "^0.28.1"
+black = "^24.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+lint.extend-select = ["I"]
