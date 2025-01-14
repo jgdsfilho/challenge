@@ -47,7 +47,7 @@ jobs:
           poetry install --no-interaction --no-root
     
       - name: Run check lint
-        run: poetry run ruff cehck . && poetry run black . --check
+        run: poetry run ruff check . && poetry run black . --check
 
       - name: Run Alembic migrations
         run: |
