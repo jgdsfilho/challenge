@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+      DB_ASYNC_CONNECTION_STR: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
 
     services:
       postgres:
@@ -45,16 +45,9 @@ jobs:
         run: |
           poetry config virtualenvs.create false && 
           poetry install --no-interaction --no-root
-
-      - name: Wait for PostgreSQL to be ready
-        run: |
-          until pg_isready -h localhost -p 5432 -U postgres; do
-            echo "Waiting for PostgreSQL to be ready..."
-            sleep 2
-          done
     
       - name: Run check lint
-        run: poetry run ruff cehck . && poetry run black . --check
+        run: poetry run ruff check . && poetry run black . --check
 
       - name: Run Alembic migrations
         run: |
