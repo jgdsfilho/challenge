@@ -151,8 +151,8 @@ poetry run uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
 You can now make requests to the API locally. The base URL is: http://localhost:8000/v1/{resource}
 
 # Development
-### Rodando os testes
-Para executar os testes, o container do postgresql deve estar rodando.
+### Running Tests
+To execute the tests, ensure the PostgreSQL container is running.
 1. Running Tests
 ```bash
 poetry run pytest -p no:warnings
