@@ -1,4 +1,3 @@
-import datetime
 import uuid
 from decimal import Decimal
 
@@ -53,14 +52,6 @@ class ProductPrice(BaseModel, table=True):
         if price < 0:
             raise ValueError("Price must be positive")
         return price
-
-    @validates("end_date")
-    def validate_end_date(self, key, end_date):
-        if end_date and end_date < self.start_date:
-            raise ValueError("End date must be greater than start date")
-        if end_date and end_date < datetime.datetime.now():
-            raise ValueError("End date must be greater than current date")
-        return end_date
 
 
 Index(
