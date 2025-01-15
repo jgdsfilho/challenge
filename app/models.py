@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from decimal import Decimal
 
@@ -42,9 +43,9 @@ class ProductPrice(BaseModel, table=True):
     __tablename__ = "product_prices"
 
     product_id: uuid.UUID = Field(foreign_key="products.id")
-    price: Decimal = Field(nullable=False)
+    price: float = Field(nullable=False)
     use_unity: UseUnit = Field(sa_column=Column(Enum(UseUnit)))
-    free_allocation: Decimal = Field(default=Decimal(0.0))
+    free_allocation: float = Field(default=Decimal(0.0))
     is_active: bool = Field(default=True)
 
     @validates("price")
@@ -78,4 +79,23 @@ Index(
     Contract.is_active,
     unique=True,
     postgresql_where=(Contract.is_active == True),  # noqa: E712
+)
+
+
+class Billing(BaseModel, table=True):
+    __tablename__ = "billings"
+
+    tenant_id: uuid.UUID = Field(foreign_key="tenants.id")
+    total_billing: float = Field(nullable=False)
+    billing_date: datetime.date = Field(nullable=False)
+    is_active: bool = True
+
+
+Index(
+    "uq_active_billing_tenant",
+    Billing.tenant_id,
+    Billing.is_active,
+    Billing.billing_date,
+    unique=True,
+    postgresql_where=(Billing.is_active == True),  # noqa: E712
 )

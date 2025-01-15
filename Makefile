@@ -2,7 +2,7 @@ CONTAINER_NAME=magalu-postgres
 IMAGE_NAME=catalog_contract_api
 POSTGRES_PORT=5432
 
-run-postgres: stop-postgres
+run-postgres:
 	docker run --name ${CONTAINER_NAME} -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=postgres -p ${POSTGRES_PORT}:${POSTGRES_PORT} -d -v /var/lib/postgresql/data postgres 
 
 stop-postgres:
@@ -11,8 +11,8 @@ stop-postgres:
 		docker rm $(CONTAINER_NAME); \
 	fi
 
-test: run-postgres
-	poetry run pytest -p no:warnings
+test:
+	poetry run pytest -p no:warnings -v
 
 migrations-generate:
 	poetry run alembic revision --autogenerate -m "$(ARGS)"
@@ -23,7 +23,7 @@ migrations-upgrade:
 migrations-downgrade:
 	poetry run alembic downgrade -1
 
-run-server: run-postgres
+run-server:
 	poetry run uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
 
 build:

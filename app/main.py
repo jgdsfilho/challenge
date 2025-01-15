@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
+from app.api.v1.billing import billing_router
 from app.api.v1.contract import contract_router
 from app.api.v1.products import product_router
 from app.api.v1.tenants import tenant_router
@@ -23,6 +24,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(tenant_router, prefix="/v1", tags=["Tenats"])
 app.include_router(product_router, prefix="/v1", tags=["Products"])
 app.include_router(contract_router, prefix="/v1", tags=["Contracts"])
+app.include_router(billing_router, prefix="/v1", tags=["Billing"])
 
 
 @app.exception_handler(InvalidBody)
