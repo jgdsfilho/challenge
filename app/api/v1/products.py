@@ -4,6 +4,7 @@ from sqlmodel import Session
 from app.api.v1.crud import (
     create_instance_with_integrity_check,
     fetch_instance_or_raise,
+    filter_instance_or_raise,
     update_last_product_price_to_false,
 )
 from app.core.database import get_async_session
@@ -58,3 +59,27 @@ async def create_product_price(
     await session.commit()
 
     return product_price
+
+
+@product_router.get("/products/{product_id}", response_model=Product)
+async def get_product(product_id: str, session: Session = Depends(get_async_session)):
+    product_instance = await fetch_instance_or_raise(product_id, Product, session)
+    return product_instance
+
+
+@product_router.get("/products/", response_model=Product)
+async def get_product_by_sku(
+    product_sku: str, session: Session = Depends(get_async_session)
+):
+    filters = {"product_sku": product_sku}
+    product_instance = await filter_instance_or_raise(Product, session, **filters)
+    return product_instance
+
+
+@product_router.get("/products/{product_id}/prices", response_model=ProductPrice)
+async def get_product_prices(
+    product_id: str, session: Session = Depends(get_async_session)
+):
+    filters = {"product_id": product_id, "is_active": True}
+    product_instance = await filter_instance_or_raise(ProductPrice, session, **filters)
+    return product_instance

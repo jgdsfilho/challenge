@@ -95,3 +95,50 @@ async def test_fail_create_product_price_missing_product(
     )
     assert response.status_code == 404
     assert response.json() == {"detail": "Product not found"}
+
+
+@pytest.mark.asyncio
+async def test_get_product(async_client: AsyncClient, async_session: AsyncSession):
+    payload = {"name": "Product 1"}
+    response = await async_client.post(
+        "/products",
+        json=payload,
+    )
+    assert response.status_code == 200
+    product_id = response.json()["id"]
+
+    response = await async_client.get(f"/products/{product_id}")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["name"] == payload["name"]
+
+
+@pytest.mark.asyncio
+async def test_get_product_price(
+    async_client: AsyncClient, async_session: AsyncSession
+):
+    payload = {"name": "Product 1"}
+    response = await async_client.post(
+        "/products",
+        json=payload,
+    )
+    assert response.status_code == 200
+    product_id = response.json()["id"]
+
+    product_price_payload = {
+        "product_id": product_id,
+        "price": 10.1,
+        "free_allocation": 2.5,
+        "use_unity": "GB/Mo",
+    }
+    response = await async_client.post(
+        f"/products/{product_id}/prices",
+        json=product_price_payload,
+    )
+    assert response.status_code == 200
+
+    response = await async_client.get(f"/products/{product_id}/prices")
+    assert response.status_code == 200
+    data = response.json()
+    for key, value in product_price_payload.items():
+        assert data[key] == value
