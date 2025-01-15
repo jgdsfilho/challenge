@@ -38,3 +38,13 @@ async def delete_contract(
     contract_instance.is_active = False
     session.add(contract_instance)
     await session.commit()
+
+
+@contract_router.get("/contracts/tenants/{tenant_id}", response_model=Contract)
+async def get_contract_by_tenant(
+    tenant_id: str,
+    session: Session = Depends(get_async_session),
+):
+    filters = {"tenant_id": tenant_id}
+    contract_instance = await filter_instance_or_raise(Contract, session, **filters)
+    return contract_instance
