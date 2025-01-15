@@ -1,15 +1,14 @@
 import pytest
+from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.api.v1.crud import (
     create_instance_with_integrity_check,
     fetch_instance_or_raise,
     filter_instance_or_raise,
     update_last_product_price_to_false,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException
-
-
-from app.models import Product, Tenant, ProductPrice, UseUnit
+from app.models import Product, ProductPrice, Tenant, UseUnit
 
 
 @pytest.mark.asyncio

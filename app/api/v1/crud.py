@@ -3,7 +3,6 @@ import uuid
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
-
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.logging import logging
