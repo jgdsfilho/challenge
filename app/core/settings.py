@@ -8,3 +8,4 @@ class Settings(BaseSettings):
 
     debug: bool = False
     db_async_connection_str: str
+    db_async_connection_str_test: str

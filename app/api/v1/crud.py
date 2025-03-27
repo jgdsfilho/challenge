@@ -2,7 +2,7 @@ import uuid
 
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import select
+from sqlmodel import SQLModel, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.logging import logging
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 async def fetch_instance_or_raise(
-    instance_id: uuid.UUID, model, async_session: AsyncSession
+    instance_id: uuid.UUID, model: SQLModel, async_session: AsyncSession
 ):
     try:
         uuid.UUID(instance_id)
@@ -28,7 +28,9 @@ async def fetch_instance_or_raise(
     return instance
 
 
-async def filter_instance_or_raise(model: any, async_session: AsyncSession, **filters):
+async def filter_instance_or_raise(
+    model: SQLModel, async_session: AsyncSession, **filters
+):
     query = select(model)
     for key, value in filters.items():
         query = query.filter(getattr(model, key) == value)
@@ -42,7 +44,7 @@ async def filter_instance_or_raise(model: any, async_session: AsyncSession, **fi
 
 
 async def create_instance_with_integrity_check(
-    instance, async_session, auto_commit=True
+    instance: SQLModel, async_session: AsyncSession, auto_commit=True
 ):
     try:
         async_session.add(instance)
