@@ -34,9 +34,19 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff]
 lint.extend-select = ["I"]
-exclude = ["migrations/*"]
+exclude = ["migrations/*", ".venv/*"]
 
 [tool.black]
 line-length = 88
 target-version = ['py313']
-exclude = "migrations/*"
+force-exclude = '''
+/(
+\.git
+| \.mypy_cache
+| \.venv
+| _build
+| build
+| dist
+| migrations/*
+)/
+'''
