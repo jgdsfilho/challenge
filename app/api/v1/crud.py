@@ -43,6 +43,21 @@ async def filter_instance_or_raise(
     return instance
 
 
+async def search_all_instances_or_raise(
+    model: SQLModel, async_session: AsyncSession, **filters
+):
+    query = select(model)
+    for key, value in filters.items():
+        query = query.filter(getattr(model, key) == value)
+
+    results = await async_session.exec(query)
+    instances = results.all()
+    if not instances:
+        logger.error(f"{model.__name__} not found: {filters}")
+        raise HTTPException(status_code=404, detail=f"{model.__name__} not found")
+    return instances
+
+
 async def create_instance_with_integrity_check(
     instance: SQLModel, async_session: AsyncSession, auto_commit=True
 ):
