@@ -2,6 +2,8 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.v1.schemas.billing import BillingSchema
+
 
 @pytest.mark.asyncio
 async def test_create_billing(async_client: AsyncClient, async_session: AsyncSession):
@@ -22,6 +24,6 @@ async def test_create_billing(async_client: AsyncClient, async_session: AsyncSes
         json=payload,
     )
     assert response.status_code == 200
-    data = response.json()
+    billing = BillingSchema(**response.json()).model_dump()
     for key in payload:
-        assert data[key] == payload[key]
+        assert billing[key] == payload[key]

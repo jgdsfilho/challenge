@@ -1,6 +1,10 @@
+from http import HTTPStatus
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.v1.schemas.tenants import TenantSchema
 
 
 @pytest.mark.asyncio
@@ -14,8 +18,10 @@ async def test_create_tenant(
         json=payload,
     )
     assert response.status_code == 200
+
+    tenant = TenantSchema(**response.json())
     for key, value in payload.items():
-        assert response.json()[key] == value
+        assert getattr(tenant, key) == value
 
 
 @pytest.mark.asyncio
@@ -37,11 +43,11 @@ async def test_fail_create_tenant_with_error_payload(
         "/tenants",
         json=payload,
     )
-    assert response.status_code == 400
-    assert response.json() == {
-        "message": "Invalid body",
-        "detail": f"{missing_field} is required",
-    }
+    response_json = response.json()["detail"][0]
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+    assert response_json["msg"] == "Field required"
+    assert response_json["type"] == "missing"
+    assert response_json["input"] == payload
 
 
 @pytest.mark.asyncio
@@ -81,8 +87,9 @@ async def test_get_tenant_with_id(
 
     response = await async_client.get(f"/tenants/{tenant_id}")
     assert response.status_code == 200
+    tenant = TenantSchema(**response.json())
     for key, value in payload.items():
-        assert response.json()[key] == value
+        assert getattr(tenant, key) == value
 
 
 @pytest.mark.asyncio
@@ -99,8 +106,9 @@ async def test_get_tenant_with_email(
 
     response = await async_client.get(f"/tenants/?email={payload['email']}")
     assert response.status_code == 200
+    tenant = TenantSchema(**response.json())
     for key, value in payload.items():
-        assert response.json()[key] == value
+        assert getattr(tenant, key) == value
 
 
 @pytest.mark.asyncio
@@ -129,5 +137,6 @@ async def test_update_tenant(
     payload["name"] = "tenant1_updated"
     response = await async_client.patch(f"/tenants/{tenant_id}", json=payload)
     assert response.status_code == 200
+    tenant = TenantSchema(**response.json())
     for key, value in payload.items():
-        assert response.json()[key] == value
+        assert getattr(tenant, key) == value

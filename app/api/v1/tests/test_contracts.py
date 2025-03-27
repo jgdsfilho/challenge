@@ -2,6 +2,9 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.v1.schemas.products import ProductSchema
+from app.api.v1.schemas.tenants import TenantSchema
+
 
 @pytest.mark.asyncio
 async def test_create_contract(
@@ -13,28 +16,33 @@ async def test_create_contract(
         json={"name": "tenant1", "email": "tenant1@my_domain.com"},
     )
     assert response.status_code == 200
-    tenant_id = response.json()["id"]
+    tenant = TenantSchema(**response.json())
 
     response = await async_client.post(
         "/products",
         json={"name": "Product 1"},
     )
     assert response.status_code == 200
-    product_id = response.json()["id"]
+    product = ProductSchema(**response.json())
 
     response = await async_client.post(
-        f"/products/{product_id}/prices",
-        json={"price": 10.1, "free_allocation": 2.5, "use_unity": "GB/Mo"},
+        f"/products/{str(product.id)}/prices",
+        json={
+            "product_id": str(product.id),
+            "price": 10.1,
+            "free_allocation": 2.5,
+            "use_unity": "GB/Mo",
+        },
     )
     assert response.status_code == 200
 
     response = await async_client.post(
-        "/contracts", json={"product_id": product_id, "tenant_id": tenant_id}
+        "/contracts", json={"product_id": str(product.id), "tenant_id": str(tenant.id)}
     )
     assert response.status_code == 200
     data = response.json()
-    assert data["product_id"] == product_id
-    assert data["tenant_id"] == tenant_id
+    assert data["product_id"] == str(product.id)
+    assert data["tenant_id"] == str(tenant.id)
 
 
 @pytest.mark.asyncio
@@ -47,28 +55,33 @@ async def test_delete_contract(
         json={"name": "tenant1", "email": "tenant1@my_domain.com"},
     )
     assert response.status_code == 200
-    tenant_id = response.json()["id"]
+    tenant = TenantSchema(**response.json())
 
     response = await async_client.post(
         "/products",
         json={"name": "Product 1"},
     )
     assert response.status_code == 200
-    product_id = response.json()["id"]
+    product = ProductSchema(**response.json())
 
     response = await async_client.post(
-        f"/products/{product_id}/prices",
-        json={"price": 10.1, "free_allocation": 2.5, "use_unity": "GB/Mo"},
+        f"/products/{str(product.id)}/prices",
+        json={
+            "product_id": str(product.id),
+            "price": 10.1,
+            "free_allocation": 2.5,
+            "use_unity": "GB/Mo",
+        },
     )
     assert response.status_code == 200
 
     response = await async_client.post(
-        "/contracts", json={"product_id": product_id, "tenant_id": tenant_id}
+        "/contracts", json={"product_id": str(product.id), "tenant_id": str(tenant.id)}
     )
     assert response.status_code == 200
 
     response = await async_client.delete(
-        f"/contracts/tenants/{tenant_id}/products/{product_id}"
+        f"/contracts/tenants/{str(tenant.id)}/products/{str(product.id)}"
     )
     assert response.status_code == 204
 
@@ -83,28 +96,33 @@ async def test_get_contracts_from_a_tenant(
         json={"name": "tenant1", "email": "tenant1@my_domain.com"},
     )
     assert response.status_code == 200
-    tenant_id = response.json()["id"]
+    tenant = TenantSchema(**response.json())
 
     response = await async_client.post(
         "/products",
         json={"name": "Product 1"},
     )
     assert response.status_code == 200
-    product_id = response.json()["id"]
+    product = ProductSchema(**response.json())
 
     response = await async_client.post(
-        f"/products/{product_id}/prices",
-        json={"price": 10.1, "free_allocation": 2.5, "use_unity": "GB/Mo"},
+        f"/products/{str(product.id)}/prices",
+        json={
+            "product_id": str(product.id),
+            "price": 10.1,
+            "free_allocation": 2.5,
+            "use_unity": "GB/Mo",
+        },
     )
     assert response.status_code == 200
 
     response = await async_client.post(
-        "/contracts", json={"product_id": product_id, "tenant_id": tenant_id}
+        "/contracts", json={"product_id": str(product.id), "tenant_id": str(tenant.id)}
     )
     assert response.status_code == 200
 
-    response = await async_client.get(f"/contracts/tenants/{tenant_id}")
+    response = await async_client.get(f"/contracts/tenants/{str(tenant.id)}")
     assert response.status_code == 200
     data = response.json()
-    assert data["product_id"] == product_id
-    assert data["tenant_id"] == tenant_id
+    assert data["product_id"] == str(product.id)
+    assert data["tenant_id"] == str(tenant.id)

@@ -1,5 +1,6 @@
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.orm import sessionmaker
+import sys
+
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -7,12 +8,15 @@ from app import Settings
 
 settings = Settings()
 
-# db_connection_str = settings.db_async_connection_str
-# if "pytest" in modules:
-#     db_connection_str = settings.db_async_test_connection_str
+
+def get_db_url() -> str:
+    if "pytest" in sys.modules:
+        return settings.db_async_connection_str_test
+    return settings.db_async_connection_str
+
 
 async_engine = create_async_engine(
-    settings.db_async_connection_str,
+    get_db_url(),
     pool_size=20,
     pool_pre_ping=True,
     echo=settings.debug,
@@ -26,7 +30,7 @@ async def init_db():
 
 
 async def get_async_session() -> AsyncSession:
-    async_session = sessionmaker(
+    async_session = async_sessionmaker(
         async_engine, class_=AsyncSession, expire_on_commit=False
     )
     async with async_session() as session:
