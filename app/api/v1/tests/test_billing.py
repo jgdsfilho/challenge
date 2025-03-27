@@ -3,6 +3,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.schemas.billing import BillingSchema
+from app.api.v1.schemas.tenants import TenantSchema
 
 
 @pytest.mark.asyncio
@@ -12,10 +13,10 @@ async def test_create_billing(async_client: AsyncClient, async_session: AsyncSes
         json={"name": "tenant1", "email": "tenant1@my_domain.com"},
     )
     assert response.status_code == 200
-    tenant_id = response.json()["id"]
+    tenant = TenantSchema(**response.json())
 
     payload = {
-        "tenant_id": tenant_id,
+        "tenant_id": str(tenant.id),
         "total_billing": 10.1,
         "billing_date": "2021-01-01",
     }
@@ -25,5 +26,6 @@ async def test_create_billing(async_client: AsyncClient, async_session: AsyncSes
     )
     assert response.status_code == 200
     billing = BillingSchema(**response.json()).model_dump()
-    for key in payload:
-        assert billing[key] == payload[key]
+    assert billing["tenant_id"] == tenant.id
+    assert billing["total_billing"] == 10.1
+    assert billing["billing_date"] == "2021-01-01"

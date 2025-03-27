@@ -2,6 +2,7 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.v1.schemas.contract import ContractSchema
 from app.api.v1.schemas.products import ProductSchema
 from app.api.v1.schemas.tenants import TenantSchema
 
@@ -123,6 +124,8 @@ async def test_get_contracts_from_a_tenant(
 
     response = await async_client.get(f"/contracts/tenants/{str(tenant.id)}")
     assert response.status_code == 200
-    data = response.json()
-    assert data["product_id"] == str(product.id)
-    assert data["tenant_id"] == str(tenant.id)
+    contracts = [
+        ContractSchema(**contract).model_dump() for contract in response.json()
+    ]
+    assert contracts[0]["product_id"] == product.id
+    assert contracts[0]["tenant_id"] == tenant.id

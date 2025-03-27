@@ -4,6 +4,7 @@ from sqlmodel import Session
 from app.api.v1.crud import (
     create_instance_with_integrity_check,
     filter_instance_or_raise,
+    search_all_instances_or_raise,
 )
 from app.api.v1.schemas.contract import ContractSchema, ContractSchemaCreate
 from app.core.database import get_async_session
@@ -38,11 +39,15 @@ async def delete_contract(
     await session.commit()
 
 
-@contract_router.get("/contracts/tenants/{tenant_id}", response_model=ContractSchema)
+@contract_router.get(
+    "/contracts/tenants/{tenant_id}", response_model=list[ContractSchema]
+)
 async def get_contract_by_tenant(
     tenant_id: str,
     session: Session = Depends(get_async_session),
 ) -> ContractSchema:
     filters = {"tenant_id": tenant_id}
-    contract_instance = await filter_instance_or_raise(Contract, session, **filters)
+    contract_instance = await search_all_instances_or_raise(
+        Contract, session, **filters
+    )
     return contract_instance

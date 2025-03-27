@@ -1,4 +1,5 @@
 from datetime import date
+from uuid import UUID
 
 from pydantic import BaseModel, field_serializer
 
@@ -6,8 +7,7 @@ from .base import BaseSchema
 
 
 class BillingSchema(BaseSchema):
-    tenant_id: str
-    tenant_id: str
+    tenant_id: UUID
     total_billing: float
     billing_date: date
 
