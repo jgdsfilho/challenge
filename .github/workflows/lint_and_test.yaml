@@ -3,7 +3,7 @@ name: CI Workflow
 on:
   pull_request:
     branches:
-      - '*'
+      - "*"
 
 jobs:
   lint_and_test:
@@ -11,6 +11,7 @@ jobs:
 
     env:
       DB_ASYNC_CONNECTION_STR: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
+      DB_ASYNC_CONNECTION_STR_TEST: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
 
     services:
       postgres:
@@ -34,7 +35,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Install Poetry
         run: |
@@ -45,7 +46,7 @@ jobs:
         run: |
           poetry config virtualenvs.create false && 
           poetry install --no-interaction --no-root
-    
+
       - name: Run check lint
         run: poetry run ruff check . && poetry run black . --check
 
@@ -53,6 +54,5 @@ jobs:
         run: |
           poetry run alembic upgrade head
 
-
       - name: Run tests with pytest
-        run: poetry run pytest --maxfail=1 -p no:warnings 
+        run: poetry run pytest --maxfail=1 -p no:warnings
