@@ -12,6 +12,7 @@ jobs:
     env:
       DB_ASYNC_CONNECTION_STR: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
       DB_ASYNC_CONNECTION_STR_TEST: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
+      POETRY_VERSION: "1.7.1"
 
     services:
       postgres:
@@ -36,15 +37,37 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
+
+      - name: Load cached Poetry installation
+        id: cached-poetry
+        uses: actions/cache@v3
+        with:
+          path: ~/.local
+          key: poetry-${{ env.POETRY_VERSION }}
 
       - name: Install Poetry
+        if: steps.cached-poetry.outputs.cache-hit != 'true'
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+          curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Configure Poetry
+        run: |
+          poetry config virtualenvs.in-project true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            .venv
+            ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
 
       - name: Install dependencies
         run: |
-          poetry config virtualenvs.create false && 
           poetry install --no-interaction --no-root
 
       - name: Run check lint
